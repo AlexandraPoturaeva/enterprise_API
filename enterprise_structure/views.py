@@ -1,6 +1,11 @@
 from rest_framework import viewsets
-from .models import Division
-from .serializers import DivisionSerializer
+from .models import Division, Employee, Position, Rule
+from .serializers import (
+    DivisionSerializer,
+    EmployeeSerializer,
+    PositionSerializer,
+    RuleSerializer,
+)
 from rest_framework.response import Response
 from rest_framework import status
 from mptt.exceptions import InvalidMove
@@ -8,10 +13,23 @@ from mptt.exceptions import InvalidMove
 
 class DivisionViewSet(viewsets.ModelViewSet):
     serializer_class = DivisionSerializer
-    queryset = Division.objects.root_nodes()
+    queryset = Division.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(parent_division=None)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         parent_division = request.data.get('parent_division')
+        title = request.data.get('title')
+
         if parent_division is None:
             if self.queryset:
                 return Response(
@@ -19,6 +37,17 @@ class DivisionViewSet(viewsets.ModelViewSet):
                          'Provide parent_division',
                     status=status.HTTP_406_NOT_ACCEPTABLE,
                 )
+
+        existed_division = Division.objects.filter(
+            title=title,
+            parent_division=parent_division,
+        ).first()
+
+        if existed_division:
+            return Response(
+                data='Division already exists',
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
 
         return super().create(request)
 
@@ -32,3 +61,43 @@ class DivisionViewSet(viewsets.ModelViewSet):
             )
 
         return super().update(request)
+
+    def destroy(self, request, *args, **kwargs):
+        division = self.get_object()
+        employees = division.employee_set.all()
+        if employees:
+            return Response(
+                data='There are employees '
+                     'at this division or its subdivisions. '
+                     'Delete employees first to delete division',
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+
+        return super().destroy(request)
+
+
+class EmployeeViewSet(viewsets.ModelViewSet):
+    serializer_class = EmployeeSerializer
+    queryset = Employee.objects.all()
+
+
+class RuleViewSet(viewsets.ModelViewSet):
+    serializer_class = RuleSerializer
+    queryset = Rule.objects.all()
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    serializer_class = PositionSerializer
+    queryset = Position.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        position = self.get_object()
+        employees = position.employee_set.all()
+        if employees:
+            return Response(
+                data='There are employees in this position. '
+                     'Delete employees first to delete position',
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+
+        return super().destroy(request)

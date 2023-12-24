@@ -1,6 +1,11 @@
 from rest_framework import routers, permissions
 from django.urls import path, include
-from enterprise_structure.views import DivisionViewSet
+from enterprise_structure.views import (
+    DivisionViewSet,
+    EmployeeViewSet,
+    PositionViewSet,
+    RuleViewSet,
+)
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -21,6 +26,9 @@ schema_view = get_schema_view(
 
 router = routers.DefaultRouter()
 router.register(r'divisions', DivisionViewSet)
+router.register(r'employees', EmployeeViewSet)
+router.register(r'positions', PositionViewSet)
+router.register(r'rules', RuleViewSet)
 
 
 urlpatterns = [
