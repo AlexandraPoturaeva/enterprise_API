@@ -55,5 +55,17 @@ class Employee(TimeStampedModel):
         ordering = ['surname']
         unique_together = ['name', 'surname', 'birth_date']
 
+
+class Employee(TimeStampedModel):
+    name = models.CharField(max_length=50)
+    surname = models.CharField(max_length=50)
+    birth_date = models.DateField(max_length=50)
+    division = models.ForeignKey(Division, models.PROTECT)
+    positions = models.ManyToManyField(Position)
+
+    class Meta:
+        ordering = ['surname']
+        unique_together = ['name', 'surname', 'birth_date']
+
     def __str__(self):
         return f'{self.name} {self.surname}'

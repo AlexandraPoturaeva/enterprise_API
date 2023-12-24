@@ -28,6 +28,8 @@ class DivisionViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         parent_division = request.data.get('parent_division')
+        title = request.data.get('title')
+
         if parent_division is None:
             if self.queryset:
                 return Response(
@@ -35,6 +37,17 @@ class DivisionViewSet(viewsets.ModelViewSet):
                          'Provide parent_division',
                     status=status.HTTP_406_NOT_ACCEPTABLE,
                 )
+
+        existed_division = Division.objects.filter(
+            title=title,
+            parent_division=parent_division,
+        ).first()
+
+        if existed_division:
+            return Response(
+                data='Division already exists',
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
 
         return super().create(request)
 
