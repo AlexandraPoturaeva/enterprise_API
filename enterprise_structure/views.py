@@ -17,7 +17,6 @@ class DivisionViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.queryset.filter(parent_division=None)
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -31,7 +30,7 @@ class DivisionViewSet(viewsets.ModelViewSet):
         title = request.data.get('title')
 
         if parent_division is None:
-            if self.queryset:
+            if self.queryset.filter(parent_division=None):
                 return Response(
                     data='Root division already exists. '
                          'Provide parent_division',
