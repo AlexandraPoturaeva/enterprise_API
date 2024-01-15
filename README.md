@@ -15,7 +15,7 @@ Cоздать REST-api для управления структурой комп
 ## Технологии
 
 [![Python](https://img.shields.io/badge/Python-464641?style=flat-square&logo=Python)](https://www.python.org/)
-[![Django REST framework](https://img.shields.io/badge/Django+DRF-464646?style=flat-square&logo=Django)](https://www.djangoproject.com/)
+[![DjangoREST](https://img.shields.io/badge/Django-REST-ff1709?style=flat-square&logo=django&logoColor=white&color=ff1709&labelColor=gray)](https://www.django-rest-framework.org/)
 [![Docker](https://img.shields.io/badge/Docker-464646?style=flat-square&logo=docker)](https://www.docker.com/)
 
 ## Запуск проекта локально
